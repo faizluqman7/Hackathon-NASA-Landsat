@@ -5,6 +5,11 @@ import sys
 import os
 import pandas as pd
 import datetime as dt
+from dotenv import load_dotenv
+import requests
+import os
+import tarfile
+
 
 # SAMPLE SCRIPT TO TEST M2M API 
 # source : https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/media/files/M2M%20Application%20Token%20Documentation_072024.pdf
@@ -14,7 +19,7 @@ def get_m2m_api_key(username, token) -> str:
     endpoint = "login-token"                                        # Define the specific endpoint for logging in to get the API key  
     url = serviceUrl + endpoint                                     # Construct the full URL for the API request  
 
-    payload = {"username": username, "token": token}    # Create dictionary with username and token for the request  
+    payload = {"username": username, "token": token}    # Create dictionary with username and token for the request      
     json_data = json.dumps(payload)                     # Convert `payload` dictionary to a JSON-formatted string  
     response = requests.post(url, json_data)            # Make a POST request to the API with the JSON data  
 
@@ -89,99 +94,21 @@ def search_datasets(api_key, temporal_filter, spatial_filter):
         raise e  
     
 
-#downloading purposes
-def create_scene_list(api_key, payload):  
-    try:  
-        service_url = 'https://m2m.cr.usgs.gov/api/api/json/stable/'  # the base URL for the M2M API  
-        api_endpoint = "scene-list-add"               # the specific API endpoint for scene searching  
-        url = service_url + api_endpoint            # Construct the full URL for the API request  
-        headers = {                                 # Define the headers for the API request  
-            'X-Auth-Token': api_key,                # Include the API key for authentication  
-            'Content-Type': 'application/json'      # Specify that the request body is in JSON format  
-        }  
-        data = payload
-        # {                                     # Define the request body data  
-        #     'datasetName': dataset_name,  
-        #     'sceneFilter':{
-        #         'acquisitionFilter': acquisition_filter,  # Include the date range filter for acquisitions  
-        #         'spatialFilter': spatial_filter
-        #         },
-            
-        # }  
-        response = requests.post(url, headers=headers, json=data)   # Makes a POST request to the API  
-        response.raise_for_status()                                 # Raise an error if the request was unsuccessful  
-        return response.json()                             # Return the 'data' field from the JSON response  
-    except requests.exceptions.RequestException as e:  # Handle any request exceptions  
-        print(f'Error searching Landsat scenes: {e}')  # Print the error message  
-        raise e 
-    
-def download_scenes(api_key, payload):  
-    try:  
-        service_url = 'https://m2m.cr.usgs.gov/api/api/json/stable/'  # the base URL for the M2M API  
-        api_endpoint = "download-options"               # the specific API endpoint for scene searching  
-        url = service_url + api_endpoint            # Construct the full URL for the API request  
-        headers = {                                 # Define the headers for the API request  
-            'X-Auth-Token': api_key,                # Include the API key for authentication  
-            'Content-Type': 'application/json'      # Specify that the request body is in JSON format  
-        }  
-        data = payload
-        # {                                     # Define the request body data  
-        #     'datasetName': dataset_name,  
-        #     'sceneFilter':{
-        #         'acquisitionFilter': acquisition_filter,  # Include the date range filter for acquisitions  
-        #         'spatialFilter': spatial_filter
-        #         },
-            
-        # }  
-        response = requests.post(url, headers=headers, json=data)   # Makes a POST request to the API  
-        response.raise_for_status()                                 # Raise an error if the request was unsuccessful  
-        return response.json()                             # Return the 'data' field from the JSON response  
-    except requests.exceptions.RequestException as e:  # Handle any request exceptions  
-        print(f'Error searching Landsat scenes: {e}')  # Print the error message  
-        raise e 
-
-
 # ===================================
 # GET_M2M_API_KEY() EXAMPLE USE
 # Source: siderAI  
-username = "tsnm"  
-m2m_application_token = "e0FVsbRLSo5!9DsVnVvna27KopGox5GT7GdZ6xLRF9Ok1n1j0ldz2AiK_uKp6NHp"  
-m2m_api_key = get_m2m_api_key(username, m2m_application_token)  
+load_dotenv()
+m2m_username = os.getenv("M2M_USERNAME")
+m2m_app_token = os.getenv("M2M_APP_TOKEN")
+m2m_api_key = get_m2m_api_key(m2m_username, m2m_app_token)  
 
-print("API Key: " + m2m_api_key)  
-
-# ===================================
-# SEARCH_LANDSAT_SCENES() EXAMPLE USE
 dataset_name = 'landsat_ot_c2_l2'   # Define the dataset name for Landsat scenes  
-date_range = {                      # Define the date range for the acquisition filter  
-    'start': '2024-09-01',      # Start date for the search  
-    'end': '2024-09-03'         # End date for the search  
-}  
-
-scenes = search_landsat_scenes(m2m_api_key, dataset_name, date_range)  # Call the function to search for scenes, returns a dictionary  
-
-print(f"\n========\nDataset : '{dataset_name}'")  
-print(f"Scene 1\n=========\n")  
-
-scenes_dict = scenes['results']         # Extract the 'results' field from the scenes dictionary  
-pp = pprint.PrettyPrinter(indent=4)     # Create a PrettyPrinter object for formatted output  
-
-print(pp.pprint(scenes_dict[0]))        # Print the first scene's details in a pretty format
-
-
-
-# ========================
-# SEARCH_LANDSAT_SCENES(edinburgh)
 
 # Define the dataset name for Landsat scenes
 date_range = {
         "start": (dt.date.today() - dt.timedelta(days=16)).isoformat(), # start = current - 16
         "end": dt.date.today().isoformat() # end = current
     }
-
-
-# CURRENT DATE 2024-09-24
-
 
 edin_location = {
         "filterType": "mbr",
@@ -206,12 +133,10 @@ print(list_of_dates[0] + " is the most recent date LandSAT data was captured in 
 print(dt.datetime.strptime(list_of_dates[0], '%Y-%m-%d %H:%M:%S') + dt.timedelta(days=16), "is the closest future date that Landsat hovers over a location!\n")
 
 
-
 # function that returns the closest future date that Landsat hovers over the given location
 
 print("\n========\n")
 print("Testing dataset-search:")
-
 
 def get_dataset_alias(api_key, longitude, latitude, start_date=None, end_date=None):
     # Spatial and temporal filters
@@ -220,7 +145,6 @@ def get_dataset_alias(api_key, longitude, latitude, start_date=None, end_date=No
         "lowerLeft": {"latitude": latitude - 0.01, "longitude": longitude - 0.01},
         "upperRight": {"latitude": latitude + 0.01, "longitude": longitude + 0.01}
     }
-
     
     temporal_filter = {
         "start": start_date if start_date else "1970-01-01",
@@ -229,10 +153,6 @@ def get_dataset_alias(api_key, longitude, latitude, start_date=None, end_date=No
 
     # Use the dataset search function
     datasets = search_datasets(api_key, temporal_filter, spatial_filter)
-
-    # Full response inspection
-    #print(json.dumps(datasets, indent=4))  
-
     
     # Check if 'data' exists and return the datasetAlias
     if 'data' in datasets and datasets['data']:
@@ -272,35 +192,6 @@ def write_pretty_print_to_file(dict, filename,directory):
 filename = "output.txt"  
 directory = "server/"
 write_pretty_print_to_file(dataset_dict, filename, directory)  
-# print(f"Number of matching datasets: {len(dataset_dict)}")
-
-
-# print("\n========\n")
-# print("Testing scene-list-add:")
-# scene_list_payload = {
-#     "listId": "edin_scenes",
-#     "datasetName": "landsat_ot_c2_l2",
-#     "entityIds": ['LC92050212024249LGN00', 'LC92040212024258LGN00','LC82050212024257LGN00', 'LC82040212024250LGN00']
-# }
-
-
-# scene_list = create_scene_list(m2m_api_key, scene_list_payload)
-# write_pretty_print_to_file(scene_list, "edin_scene_out.txt", directory)
-
-# download_payload = {
-    # "listId":"edin_scenes" ,
-#     "datasetName":"landsat_ot_c2_l2",
-#     "includeSecondaryFileGroups": True   
-# }
-
-# print("\n========\n")
-# print("Testing download-option:")
-
-# prod = download_scenes(m2m_api_key, download_payload)
-
-# dwd_scenes_dict = pd.json_normalize(prod).to_dict()
-# write_pretty_print_to_file(dwd_scenes_dict, "download_edin_scene.txt", directory)
-
 
 # DOWNLOADING SCENES 
 # endpoint --> download-options
@@ -315,6 +206,7 @@ print("Testing gpto1's 'download' code:")
 print("========\n")
 import time  
 
+ 
 def retrieve_dwn_urls(api_key, datasetName, entityIds, dwdApp="M2M"):
 # Define the API endpoints  
     download_options_url = "https://m2m.cr.usgs.gov/api/api/json/stable/download-options"  # Replace with the actual URL  
@@ -354,7 +246,6 @@ def retrieve_dwn_urls(api_key, datasetName, entityIds, dwdApp="M2M"):
     download_requests = []  
     for product in available_products:  
         download_requests.append({  
-            # "label": product["entityId"],  
             "entityId": product["entityId"],  
             "productId": product["productId"]  
         })  
@@ -401,13 +292,8 @@ entity_ids = "LC92050212024249LGN00,LC92040212024258LGN00,LC82050212024257LGN00,
 dwd_urls_list = retrieve_dwn_urls(m2m_api_key, dataset_name, entity_ids)
 print("--> Available download urls: ")
 print(dwd_urls_list)
-
         
-import requests
-import os
-import zipfile
-import tarfile
-from urllib.parse import urlparse
+# from urllib.parse import urlparse
 
 def download_and_extract_zip(url, download_dir):
     # Create the download directory if it doesn't exist
@@ -465,7 +351,7 @@ def download_and_extract_zip(url, download_dir):
 
 
 # !!! REPLACE THIS PATH WITH YOUR OWN PATHS ON YOUR RESPECTIVE LAPTOPS vv
-download_directory = "C:/Users/User-PC/Documents/Overseas stuff/Edinburgh/Year 3 drive/coding projects/Landsat data/dwd_&_xtract_test"
+download_directory = "download/path"
 
 print("Processing download URLs:")
 for url in dwd_urls_list:
@@ -480,10 +366,9 @@ import matplotlib.pyplot as plt
 
 
 # File paths for the TIF images  
-# "C:/Users/User-PC/Documents/Overseas stuff/Edinburgh/Year 3 drive/coding projects/Landsat data/dwd_&_xtract_test/LC08_L2SP_204021_20240906_20240914_02_T1/LC08_L2SP_204021_20240906_20240914_02_T1_SR_B2"
-band_2_path = "C:/Users/User-PC/Documents/Overseas stuff/Edinburgh/Year 3 drive/coding projects/Landsat data/dwd_&_xtract_test/LC08_L2SP_204021_20240906_20240914_02_T1/LC08_L2SP_204021_20240906_20240914_02_T1_SR_B2.tif"  # Replace with the actual path to Band 2  
-band_3_path = "C:/Users/User-PC/Documents/Overseas stuff/Edinburgh/Year 3 drive/coding projects/Landsat data/dwd_&_xtract_test/LC08_L2SP_204021_20240906_20240914_02_T1/LC08_L2SP_204021_20240906_20240914_02_T1_SR_B3.tif"  # Replace with the actual path to Band 3  
-band_4_path = "C:/Users/User-PC/Documents/Overseas stuff/Edinburgh/Year 3 drive/coding projects/Landsat data/dwd_&_xtract_test/LC08_L2SP_204021_20240906_20240914_02_T1/LC08_L2SP_204021_20240906_20240914_02_T1_SR_B4.tif"  # Replace with the actual path to Band 4  
+band_2_path = "path/to/band2.TIF"  # Replace with the actual path to Band 2  
+band_3_path = "path/to/band3.TIF"  # Replace with the actual path to Band 3  
+band_4_path = "path/to/band4.TIF"  # Replace with the actual path to Band 4  
 
 # Read the TIF files  
 with rasterio.open(band_2_path) as band2:  
@@ -515,7 +400,7 @@ band4_stretched = contrast_stretch(band4_data)
 rgb_image = np.stack((band4_stretched, band3_stretched, band2_stretched), axis=0)  # Band 4 (Red), Band 3 (Green), Band 2 (Blue)  
 
 # Optionally, save the color image  
-output_path = 'server/rgb_stack_L08_20240914_contrast_stretched.tif'  # Replace with desired output path 
+# output_path = 'server/rgb_stack_L08_20240914_contrast_stretched.tif'  # Replace with desired output path 
 
 # Update the profile for a 3-band GeoTIFF
 profile.update(
@@ -525,6 +410,6 @@ profile.update(
 )
 
 # Save the color image as a GeoTIFF
-with rasterio.open(output_path, 'w', **profile) as dst:
-    dst.write(rgb_image)
+# with rasterio.open(output_path, 'w', **profile) as dst:
+    # dst.write(rgb_image)
 
