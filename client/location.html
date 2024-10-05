@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landsat Observer - Select Location</title>
+    <link rel="stylesheet" href="https://unpkg.com/98.css">
+    <link rel="stylesheet" href="locationstyle.css">
+</head>
+<body>
+    <div id="map"></div>
+
+    <div class="window-body">
+      <input id="search-box" type="text" placeholder="Search for a location" style="width: 600px; height: 30px;"/>
+    </div>
+
+    <div class="window">
+        <div class="title-bar">
+            <div class="title-bar-text">Current Coordinates</div>
+            <div class="title-bar-controls">
+                <button aria-label="Minimize"></button>
+                <button aria-label="Maximize"></button>
+                <button aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="window-body">
+          <p id="lat">Latitude: </p>
+          <p id="lng">Longitude: </p>
+        </div>
+    </div>
+
+
+      <!-- Options Window -->
+      <div class="window" style="position: absolute; bottom: 20px; left: 20px;">
+        <div class="title-bar">
+            <div class="title-bar-text">Options</div>
+            <div class="title-bar-controls">
+                <button aria-label="Minimize"></button>
+                <button aria-label="Maximize"></button>
+                <button aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="window-body">
+            <button onclick="location.href='index.html'"; style="width: 100px; height: 30px;">Home</button>
+            <button onclick="location.href='notification.html'"; style="width: 100px; height: 30px;">Notifications</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgKFgyqXT86wQx7avSvCg5RkME9zqrwQc&libraries=places&callback=initMap"></script>
+</body>
+</html>

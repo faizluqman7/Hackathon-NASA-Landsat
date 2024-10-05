@@ -1,0 +1,122 @@
+{   'data': {   'availableDownloads': [   {   'downloadId': 676306236,
+                                              'eulaCode': None,
+                                              'url': 'https://dds.cr.usgs.gov/download/eyJpZCI6Njc2MzA2MjM2LCJjb250YWN0SWQiOjI3Mjc2MjA0fQ=='},
+                                          {   'downloadId': 676306237,
+                                              'eulaCode': None,
+                                              'url': 'https://dds.cr.usgs.gov/download/eyJpZCI6Njc2MzA2MjM3LCJjb250YWN0SWQiOjI3Mjc2MjA0fQ=='},
+                                          {   'downloadId': 676306238,
+                                              'eulaCode': None,
+                                              'url': 'https://dds.cr.usgs.gov/download/eyJpZCI6Njc2MzA2MjM4LCJjb250YWN0SWQiOjI3Mjc2MjA0fQ=='},
+                                          {   'downloadId': 676306239,
+                                              'eulaCode': None,
+                                              'url': 'https://dds.cr.usgs.gov/download/eyJpZCI6Njc2MzA2MjM5LCJjb250YWN0SWQiOjI3Mjc2MjA0fQ=='}],
+                'duplicateProducts': {   '676306236': 'LC82040212024250LGN00',
+                                         '676306237': 'LC82050212024257LGN00',
+                                         '676306238': 'LC92040212024258LGN00',
+                                         '676306239': 'LC92050212024249LGN00'},
+                'failed': [   {   'entityId': 'LC82040212024250LGN00',
+                                  'errorMessage': 'The selected product is not '
+                                                  'a downloadable product. '
+                                                  'When using '
+                                                  'download-options, include '
+                                                  'the parameter '
+                                                  '"includeSecondaryFileGroups": '
+                                                  'true and select items from '
+                                                  'the secondaryDownloads '
+                                                  'array.',
+                                  'productId': '6448198cc7b442a4'},
+                              {   'entityId': 'LC82040212024250LGN00',
+                                  'errorMessage': 'The selected product is not '
+                                                  'a downloadable product. '
+                                                  'When using '
+                                                  'download-options, include '
+                                                  'the parameter '
+                                                  '"includeSecondaryFileGroups": '
+                                                  'true and select items from '
+                                                  'the secondaryDownloads '
+                                                  'array.',
+                                  'productId': '6448198c62023764'},
+                              {   'entityId': 'LC82050212024257LGN00',
+                                  'errorMessage': 'The selected product is not '
+                                                  'a downloadable product. '
+                                                  'When using '
+                                                  'download-options, include '
+                                                  'the parameter '
+                                                  '"includeSecondaryFileGroups": '
+                                                  'true and select items from '
+                                                  'the secondaryDownloads '
+                                                  'array.',
+                                  'productId': '6448198cc7b442a4'},
+                              {   'entityId': 'LC82050212024257LGN00',
+                                  'errorMessage': 'The selected product is not '
+                                                  'a downloadable product. '
+                                                  'When using '
+                                                  'download-options, include '
+                                                  'the parameter '
+                                                  '"includeSecondaryFileGroups": '
+                                                  'true and select items from '
+                                                  'the secondaryDownloads '
+                                                  'array.',
+                                  'productId': '6448198c62023764'},
+                              {   'entityId': 'LC92040212024258LGN00',
+                                  'errorMessage': 'The selected product is not '
+                                                  'a downloadable product. '
+                                                  'When using '
+                                                  'download-options, include '
+                                                  'the parameter '
+                                                  '"includeSecondaryFileGroups": '
+                                                  'true and select items from '
+                                                  'the secondaryDownloads '
+                                                  'array.',
+                                  'productId': '6448198cc7b442a4'},
+                              {   'entityId': 'LC92040212024258LGN00',
+                                  'errorMessage': 'The selected product is not '
+                                                  'a downloadable product. '
+                                                  'When using '
+                                                  'download-options, include '
+                                                  'the parameter '
+                                                  '"includeSecondaryFileGroups": '
+                                                  'true and select items from '
+                                                  'the secondaryDownloads '
+                                                  'array.',
+                                  'productId': '6448198c62023764'},
+                              {   'entityId': 'LC92050212024249LGN00',
+                                  'errorMessage': 'The selected product is not '
+                                                  'a downloadable product. '
+                                                  'When using '
+                                                  'download-options, include '
+                                                  'the parameter '
+                                                  '"includeSecondaryFileGroups": '
+                                                  'true and select items from '
+                                                  'the secondaryDownloads '
+                                                  'array.',
+                                  'productId': '6448198cc7b442a4'},
+                              {   'entityId': 'LC92050212024249LGN00',
+                                  'errorMessage': 'The selected product is not '
+                                                  'a downloadable product. '
+                                                  'When using '
+                                                  'download-options, include '
+                                                  'the parameter '
+                                                  '"includeSecondaryFileGroups": '
+                                                  'true and select items from '
+                                                  'the secondaryDownloads '
+                                                  'array.',
+                                  'productId': '6448198c62023764'}],
+                'newRecords': [],
+                'numInvalidScenes': 8,
+                'preparingDownloads': [],
+                'remainingLimits': [   {   'limitType': 'user',
+                                           'pendingDownloadCount': 20000,
+                                           'recentDownloadCount': 15000,
+                                           'unattemptedDownloadCount': 19992,
+                                           'username': 'tsnm'},
+                                       {   'ipAddress': '82.1.59.203',
+                                           'limitType': 'ip',
+                                           'pendingDownloadCount': 20000,
+                                           'recentDownloadCount': 15000,
+                                           'unattemptedDownloadCount': 19992}]},
+    'errorCode': None,
+    'errorMessage': None,
+    'requestId': 1806784338,
+    'sessionId': 295221548,
+    'version': 'stable'}

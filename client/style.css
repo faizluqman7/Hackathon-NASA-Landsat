@@ -1,0 +1,17 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    background-color: #088487; /* Light grey for the desktop background */
+}
+
+#footer-window {
+  width: 100%;  /* Full width */
+  height: 20px;  /* Adjust as needed */
+  position: fixed;  /* Fixed to the bottom */
+  bottom: 0;  /* Stick to the bottom */
+  left: 0;  /* Align to the left edge */
+  z-index: 10;  /* Ensure it is above other content */
+}

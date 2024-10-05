@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landsat Data</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+</head>
+<body>
+    <header class="header">
+        <h1>Landsat Data Viewer</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="location.html">Set Location</a></li>
+                <li><a href="notification.html">Notification Settings</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="data-display">
+            <h2>Landsat Data for Your Location</h2>
+            <div class="scene-metadata">
+                <h3>Scene Metadata</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Satellite</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                            <th>WRS Path</th>
+                            <th>WRS Row</th>
+                            <th>Cloud Cover (%)</th>
+                            <th>Image Quality</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Sample data, replace with dynamic content -->
+                        <tr>
+                            <td>Landsat 8</td>
+                            <td>2024-06-15</td>
+                            <td>10:30 AM</td>
+                            <td>37.7749</td>
+                            <td>-122.4194</td>
+                            <td>44</td>
+                            <td>32</td>
+                            <td>5</td>
+                            <td>High</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="spectral-signature">
+                <h3>Spectral Signature</h3>
+                <canvas id="signatureChart"></canvas> <!-- Placeholder for graph -->
+            </div>
+        </section>
+
+        <div class="download-share">
+            <h3>Download or Share Data</h3>
+            <button id="downloadDataBtn">Download Data (CSV)</button>
+            <button id="shareDataBtn">Share Data</button>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 Landsat Observer. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script> <!-- Link to your JavaScript file if needed -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js for graphs -->
+    <script>
+        // Example for plotting spectral signature
+        const ctx = document.getElementById('signatureChart').getContext('2d');
+        const signatureChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Band 1', 'Band 2', 'Band 3', 'Band 4', 'Band 5'], // Example bands
+                datasets: [{
+                    label: 'Reflectance',
+                    data: [0.1, 0.2, 0.5, 0.7, 0.3], // Example reflectance values
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 2,
+                    fill: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Reflectance'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Landsat Bands'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
