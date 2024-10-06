@@ -219,6 +219,42 @@ filename = "output.txt"
 directory = "server/"
 write_pretty_print_to_file(dataset_dict, filename, directory)  
 
+
+
+def get_entity_ids(long, lat, start_date, end_date) -> str:    
+    api_key = get_m2m_api_key(m2m_username, m2m_app_token)  
+    dataset_name = get_dataset_alias(api_key, long, lat, start_date, end_date)
+    # print(f"Dataset Name: {dataset_name}")
+    
+    date_range= {
+        "start": start_date if start_date else "1970-01-01",
+        "end": end_date if end_date else "9999-12-31"
+    }
+    box_location = {
+        "filterType": "mbr",
+        "lowerLeft": {"latitude": lat - 0.01, "longitude": long - 0.01},
+        "upperRight": {"latitude": lat + 0.01, "longitude": long + 0.01}
+    }
+    
+    resp_dict = search_landsat_scenes(api_key, dataset_name, date_range, box_location)
+    numOfResp = resp_dict['totalHits']
+    entity_id_list = []
+    
+    for i in range(0,numOfResp):
+        entity_id_list.append(resp_dict['results'][i]['entityId'])
+    # print(entity_id_list)
+    return ','.join(entity_id_list)
+    
+# ==== GET ENTITY IDS TEST ====
+long = -3.20483
+lat = 55.93607
+start_date = "2024-09-01"  # date format -> "YYYY-MM-DD"
+end_date = "2024-09-16"
+
+# calling get_entity_ids() function
+# get_entity_ids(long, lat, start_date, end_date)
+
+
 # DOWNLOADING SCENES 
 # endpoint --> download-options
 # - Identify product IDs that are "available" for each scene
@@ -425,7 +461,7 @@ print("Processing download URLs:")
 # for url in dwd_urls_list:
 url = dwd_urls_list[0]  # GCS test
 print(f"Processing: {url}")
-download_and_extract_zip(url, download_directory, bucket_name)
+# download_and_extract_zip(url, download_directory, bucket_name)
 print("\n*** DONE UNZIPPING LANDSAT FILES ***\n")
 
 
