@@ -253,6 +253,23 @@ function updateCoordinates(location) {
 
     // Test
     sendEmail(lat, lng);
+
+    // Retrieve satellite data from endpoint
+    retrieveSatelliteData(lat, lng);
+}
+
+// DELETE IF NOT WORKING
+function retrieveSatelliteData(lat, lng) {
+    fetch('/retrieve-satellite-data', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ lat, lng })
+    })
+    .then(response => response.text())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
 }
 
 // Error handling for geolocation

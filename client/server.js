@@ -42,6 +42,23 @@ app.post('/send-email', (req, res) => {
             res.status(500).send('Error sending email');
         });
 });
+// DELETE IF NOT WORKING
+// Endpoint to handle satellite data retrieval request
+app.post('/retrieve-satellite-data', (req, res) => {
+    const { lat, lng } = req.body;
+
+    const { exec } = require('child_process');
+    const command = `python3 landsat.py ${lat} ${lng}`;  // Call landsat.py with coordinates as arguments
+
+    // Execute the Python script
+    exec(command, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error executing landsat.py: ${error}`);
+            return res.status(500).send('Failed to retrieve satellite data');
+        }
+        res.status(200).send(`Satellite data retrieval started with lat: ${lat}, lng: ${lng}`);
+    });
+});
 
 // Run the server
 app.listen(3000, () => {
