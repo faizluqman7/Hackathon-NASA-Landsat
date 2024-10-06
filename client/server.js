@@ -59,31 +59,28 @@ function runPythonScript() {
 runPythonScript();
 
 // Endpoint to send email
-app.post('/send-email', async (req, res) => {
-    const { email } = req.body;
+app.post('/send-email', (req, res) => {
+    const { email, lat, lng } = req.body;
 
-    try {
-        // Get URLs from Google Cloud Storage
-        const downloadUrls = await getDownloadUrlsFromGCloud();
-        console.log("test");
-        console.log(downloadUrls);
+    // Construct the email message
+    const msg = {
+        to: email,
+        from: 'faizluqman7@gmail.com', // Replace with your verified SendGrid sender email
+        subject: 'Coordinates Selected',
+        text: `Coordinates selected by the user: Latitude: ${lat}, Longitude: ${lng}`,
+        html: `<strong>Coordinates selected: Latitude: ${lat}, Longitude: ${lng}</strong>`,
+    };
 
-        // Construct the email message with download URLs
-        const msg = {
-            to: email,
-            from: 'faizluqman7@gmail.com',
-            subject: 'Coordinates and Download Links',
-            text: `Here are your download links:\n${downloadUrls.join('\n')}`,
-            html: `<strong>Here are your download links:</strong><ul>${downloadUrls.map(url => `<li><a href="${url}">${url}</a></li>`).join('')}</ul>`
-        };
-
-        // Send the email
-        await sgMail.send(msg);
-        res.status(200).send('Email sent successfully with download URLs');
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).send('Error sending email');
-    }
+    // Send the email
+    sgMail
+        .send(msg)
+        .then(() => {
+            res.status(200).send('Email sent successfully');
+        })
+        .catch((error) => {
+            console.error(error);
+            res.status(500).send('Error sending email');
+        });
 });
 // DELETE IF NOT WORKING
 // Endpoint to handle satellite data retrieval request
