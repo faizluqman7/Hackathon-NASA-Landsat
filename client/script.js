@@ -320,6 +320,7 @@ function sendEmail() {
     const lng = document.getElementById('lng').value;
 
     // Send data to backend for sending the email
+    //yes
     fetch('https://hackathon-nasa-landsat.onrender.com/send-email', {
         method: 'POST',
         headers: {
