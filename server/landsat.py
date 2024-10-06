@@ -113,17 +113,43 @@ date_range = {
         "end": dt.date.today().isoformat() # end = current
     }
 
+
+# Cooridinates from server.js endpoint (/retrieve-satellite-data)
+# Only use if everything else works / delete if not
+# def get_satellite_data():
+#     url = "http://localhost:3000/retrieve-satellite-data"
+#     satelite_data_response = requests.get(url)
+
+
+#     if satelite_data_response.status_code == 200:
+#         data = satelite_data_response.json()
+#         lat = data.get('lat')
+#         lng = data.get('lng')
+
+#         # Now you can use lat and lng in your Landsat processing logic
+#         print(f"Received coordinates: Latitude: {lat}, Longitude: {lng}")
+
+#     else:
+#         print(f"Failed to retrieve coordinates. Status code: {satelite_data_response.status_code}")
+
+    
+#     edin_location = {
+#             "filterType": "mbr",
+#             "lowerLeft": {"latitude": float(lat) - 0.05, "longitude": float(lng) - 0.05},
+#             "upperRight": {"latitude": float(lat) + 0.05, "longitude": float(lng) + 0.05}
+#         }
+
+#backup function in case the above doesn't work
+lat = float(input("Enter latitude: "))  # Prompt user for latitude
+lng = float(input("Enter longitude: "))  # Prompt user for longitude
+
+# Define the spatial filter for Edinburgh location based on user input
 edin_location = {
-        "filterType": "mbr",
-        "lowerLeft": {
-            "latitude": 55.93607,
-            "longitude": -3.20483
-        },
-        "upperRight": {
-            "latitude": 55.94672,
-            "longitude": -3.18626
-        }
-    }
+    "filterType": "mbr",    
+    "lowerLeft": {"latitude": lat - 0.05, "longitude": lng - 0.05},
+    "upperRight": {"latitude": lat + 0.05, "longitude": lng + 0.05}
+}
+
 
 dataset_dict = search_landsat_scenes(m2m_api_key, dataset_name, date_range,spatial_filter=edin_location)  # Call the function to search for scenes, returns a dictionary  
 
@@ -196,6 +222,42 @@ filename = "output.txt"
 directory = "server/"
 write_pretty_print_to_file(dataset_dict, filename, directory)  
 
+
+
+def get_entity_ids(long, lat, start_date, end_date) -> str:    
+    api_key = get_m2m_api_key(m2m_username, m2m_app_token)  
+    dataset_name = get_dataset_alias(api_key, long, lat, start_date, end_date)
+    # print(f"Dataset Name: {dataset_name}")
+    
+    date_range= {
+        "start": start_date if start_date else "1970-01-01",
+        "end": end_date if end_date else "9999-12-31"
+    }
+    box_location = {
+        "filterType": "mbr",
+        "lowerLeft": {"latitude": lat - 0.01, "longitude": long - 0.01},
+        "upperRight": {"latitude": lat + 0.01, "longitude": long + 0.01}
+    }
+    
+    resp_dict = search_landsat_scenes(api_key, dataset_name, date_range, box_location)
+    numOfResp = resp_dict['totalHits']
+    entity_id_list = []
+    
+    for i in range(0,numOfResp):
+        entity_id_list.append(resp_dict['results'][i]['entityId'])
+    # print(entity_id_list)
+    return ','.join(entity_id_list)
+    
+# ==== GET ENTITY IDS TEST ====
+long = -3.20483
+lat = 55.93607
+start_date = "2024-09-01"  # date format -> "YYYY-MM-DD"
+end_date = "2024-09-16"
+
+# calling get_entity_ids() function
+# get_entity_ids(long, lat, start_date, end_date)
+
+
 # DOWNLOADING SCENES 
 # endpoint --> download-options
 # - Identify product IDs that are "available" for each scene
@@ -204,13 +266,41 @@ write_pretty_print_to_file(dataset_dict, filename, directory)
 # - - - URLs returned as "available" are available for download
 # - - - For URLs returned as "preparing," wait and check download-retrieve to see if they are "available"
 
+import os
+from google.cloud import  storage
+
+# setting up GCS key
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gleaming-lead-437206-i7-827426fd2864.json"
+
+
+# GCS = Google Cloud Storage
+def upload_to_gcs(bucket_name, source_file_name, destination_blob_name, retries=3):  
+    """Uploads a file to the bucket."""  
+    storage_client = storage.Client()  
+    bucket = storage_client.bucket(bucket_name)  
+    blob = bucket.blob(destination_blob_name)  
+
+    # blob.upload_from_filename(source_file_name)  
+    
+    for attempt in range(retries):  
+        try:  
+            blob.upload_from_filename(source_file_name, timeout=60)  # Set timeout to 60 seconds 
+            print(f"GCS SUCCESS ==> File {source_file_name} uploaded to {destination_blob_name}.")  
+            return  # Exit the function if upload is successful  
+        except Exception as e:  
+            print(f"Attempt {attempt + 1} failed: {e}")  
+            time.sleep(2)  # Wait 2 secsbefore retrying  
+
+    raise Exception("GCS FAILED to upload after multiple attempts.")  
+
+
 print("\n========")
 print("Testing gpto1's 'download' code:")
 print("========\n")
 import time  
 
  
-def retrieve_dwn_urls(api_key, datasetName, entityIds, dwdApp="M2M"):
+def retrieve_dwn_urls(api_key, entityIds, datasetName="landsat_ot_c2_l2", dwdApp="M2M"):
 # Define the API endpoints  
     download_options_url = "https://m2m.cr.usgs.gov/api/api/json/stable/download-options"  # Replace with the actual URL  
     download_request_url = "https://m2m.cr.usgs.gov/api/api/json/stable/download-request"    # Replace with the actual URL  
@@ -292,13 +382,13 @@ def retrieve_dwn_urls(api_key, datasetName, entityIds, dwdApp="M2M"):
 # ========== DOWNLOADING LANDSAT EDIN SCENES ============
 # input params for downloading
 entity_ids = "LC92050212024249LGN00,LC92040212024258LGN00,LC82050212024257LGN00,LC82040212024250LGN00"
-dwd_urls_list = retrieve_dwn_urls(m2m_api_key, dataset_name, entity_ids)
+dwd_urls_list = retrieve_dwn_urls(m2m_api_key, entity_ids, dataset_name )
 print("--> Available download urls: ")
 print(dwd_urls_list)
         
 # from urllib.parse import urlparse
 
-def download_and_extract_zip(url, download_dir):
+def download_and_extract_zip(url, download_dir, bucket_name):
     # Create the download directory if it doesn't exist
     os.makedirs(download_dir, exist_ok=True)
 
@@ -324,15 +414,16 @@ def download_and_extract_zip(url, download_dir):
         if os.path.exists(file_path):  
             print(f"File already exists: {filename}. Skipping download.")  
         else:    
-            # # Save the zip file # !!! UNCOMMENT IF YOU WANT TO DOWNLOAD THE FILES | took around 20 mins to download 4 .tar files
+            # Save the zip file # !!! UNCOMMENT IF YOU WANT TO DOWNLOAD THE FILES | took around 20 mins to download 4 .tar files
             # with open(file_path, 'wb') as file:
                 # for chunk in response.iter_content(chunk_size=8192):
                     # file.write(chunk)
             print(f"Downloaded: {filename}")
         
         # Extract the contents of the tar file  
-        
-        extract_dir = os.path.join(download_dir, os.path.splitext(filename)[0])  
+        folder_name = os.path.splitext(filename)[0]
+        print(f"****FOLDER NAME: {folder_name}")
+        extract_dir = os.path.join(download_dir, folder_name)  
         os.makedirs(extract_dir, exist_ok=True)  
 
         # Extract the contents of the tar file into the new directory  
@@ -341,6 +432,18 @@ def download_and_extract_zip(url, download_dir):
             tar_ref.extractall(extract_dir)  
         print(f"Extracted: {filename} into {extract_dir}")  
         
+        
+        
+        # Upload extracted files to GCS  
+        for root, dirs, files in os.walk(extract_dir):  
+            for file in files:  
+                local_file_path = os.path.join(root, file)  
+                gcs_blob_name = os.path.relpath(local_file_path, extract_dir)  
+                upload_to_gcs(bucket_name, local_file_path, gcs_blob_name)  
+
+
+
+
         # Optionally, remove the tar file after extraction  
         os.remove(file_path)  
         print(f"Removed tar file: {filename}")  
@@ -355,20 +458,24 @@ def download_and_extract_zip(url, download_dir):
 
 # !!! REPLACE THIS PATH WITH YOUR OWN PATHS ON YOUR RESPECTIVE LAPTOPS vv
 download_directory = "download/path"
+bucket_name = "my_baldi"
 
 print("Processing download URLs:")
-for url in dwd_urls_list:
-    print(f"Processing: {url}")
-    download_and_extract_zip(url, download_directory)
+# for url in dwd_urls_list:
+url = dwd_urls_list[0]  # GCS test
+print(f"Processing: {url}")
+# download_and_extract_zip(url, download_directory, bucket_name)
 print("\n*** DONE UNZIPPING LANDSAT FILES ***\n")
 
 
+# COLOURING THE LANDSAT IMAGE
 import rasterio  
 import numpy as np  
 import matplotlib.pyplot as plt  
 
 
 # File paths for the TIF images  
+# 
 band_2_path = "path/to/band2.TIF"  # Replace with the actual path to Band 2  
 band_3_path = "path/to/band3.TIF"  # Replace with the actual path to Band 3  
 band_4_path = "path/to/band4.TIF"  # Replace with the actual path to Band 4  
