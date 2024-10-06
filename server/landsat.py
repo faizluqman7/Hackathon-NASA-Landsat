@@ -6,10 +6,15 @@ import os
 import pandas as pd
 import datetime as dt
 from dotenv import load_dotenv
-import requests
-import os
 import tarfile
 
+from google.cloud import  storage
+
+import rasterio  
+import numpy as np  
+
+# install python packages:
+# pip install requests json5 pandas python-dotenv google-cloud-storage rasterio numpy
 
 # SAMPLE SCRIPT TO TEST M2M API 
 # source : https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/media/files/M2M%20Application%20Token%20Documentation_072024.pdf
@@ -263,8 +268,6 @@ end_date = "2024-09-16"
 # - - - URLs returned as "available" are available for download
 # - - - For URLs returned as "preparing," wait and check download-retrieve to see if they are "available"
 
-import os
-from google.cloud import  storage
 
 # setting up GCS key
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gleaming-lead-437206-i7-827426fd2864.json"
@@ -464,15 +467,12 @@ print(f"Processing: {url}")
 # download_and_extract_zip(url, download_directory, bucket_name)
 print("\n*** DONE UNZIPPING LANDSAT FILES ***\n")
 
-
 # COLOURING THE LANDSAT IMAGE
-import rasterio  
-import numpy as np  
-import matplotlib.pyplot as plt  
-
 
 # File paths for the TIF images  
-# 
+
+print(f"RASTERIO VER: {rasterio.__version__}")
+
 band_2_path = "path/to/band2.TIF"  # Replace with the actual path to Band 2  
 band_3_path = "path/to/band3.TIF"  # Replace with the actual path to Band 3  
 band_4_path = "path/to/band4.TIF"  # Replace with the actual path to Band 4  
