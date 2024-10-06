@@ -513,7 +513,7 @@ band4_stretched = contrast_stretch(band4_data)
 rgb_image = np.stack((band4_stretched, band3_stretched, band2_stretched), axis=0)  # Band 4 (Red), Band 3 (Green), Band 2 (Blue)  
 
 # Optionally, save the color image  
-# output_path = 'server/rgb_stack_L08_20240914_contrast_stretched.tif'  # Replace with desired output path 
+output_path = 'server/rgb_stack_L08_20240914_contrast_stretched.tif'  # Replace with desired output path 
 
 # Update the profile for a 3-band GeoTIFF
 profile.update(
@@ -523,8 +523,8 @@ profile.update(
 )
 
 # Save the color image as a GeoTIFF
-# with rasterio.open(output_path, 'w', **profile) as dst:
-    # dst.write(rgb_image)
+with rasterio.open(output_path, 'w', **profile) as dst:
+    dst.write(rgb_image)
 
 # WRS-2 Path and Row Calculation
 
