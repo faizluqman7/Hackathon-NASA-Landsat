@@ -65,6 +65,8 @@ app.post('/send-email', async (req, res) => {
     try {
         // Get URLs from Google Cloud Storage
         const downloadUrls = await getDownloadUrlsFromGCloud();
+        console.log("test");
+        console.log(downloadUrls);
 
         // Construct the email message with download URLs
         const msg = {
