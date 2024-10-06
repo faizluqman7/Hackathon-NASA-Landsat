@@ -110,17 +110,43 @@ date_range = {
         "end": dt.date.today().isoformat() # end = current
     }
 
+
+# Cooridinates from server.js endpoint (/retrieve-satellite-data)
+# Only use if everything else works / delete if not
+# def get_satellite_data():
+#     url = "http://localhost:3000/retrieve-satellite-data"
+#     satelite_data_response = requests.get(url)
+
+
+#     if satelite_data_response.status_code == 200:
+#         data = satelite_data_response.json()
+#         lat = data.get('lat')
+#         lng = data.get('lng')
+
+#         # Now you can use lat and lng in your Landsat processing logic
+#         print(f"Received coordinates: Latitude: {lat}, Longitude: {lng}")
+
+#     else:
+#         print(f"Failed to retrieve coordinates. Status code: {satelite_data_response.status_code}")
+
+    
+#     edin_location = {
+#             "filterType": "mbr",
+#             "lowerLeft": {"latitude": float(lat) - 0.05, "longitude": float(lng) - 0.05},
+#             "upperRight": {"latitude": float(lat) + 0.05, "longitude": float(lng) + 0.05}
+#         }
+
+#backup function in case the above doesn't work
+lat = float(input("Enter latitude: "))  # Prompt user for latitude
+lng = float(input("Enter longitude: "))  # Prompt user for longitude
+
+# Define the spatial filter for Edinburgh location based on user input
 edin_location = {
-        "filterType": "mbr",
-        "lowerLeft": {
-            "latitude": 55.93607,
-            "longitude": -3.20483
-        },
-        "upperRight": {
-            "latitude": 55.94672,
-            "longitude": -3.18626
-        }
-    }
+    "filterType": "mbr",    
+    "lowerLeft": {"latitude": lat - 0.05, "longitude": lng - 0.05},
+    "upperRight": {"latitude": lat + 0.05, "longitude": lng + 0.05}
+}
+
 
 dataset_dict = search_landsat_scenes(m2m_api_key, dataset_name, date_range,spatial_filter=edin_location)  # Call the function to search for scenes, returns a dictionary  
 
