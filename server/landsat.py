@@ -6,7 +6,13 @@ import os
 import pandas as pd
 import datetime as dt
 from dotenv import load_dotenv
+import requests
+import os
 import tarfile
+import matplotlib.pyplot as plt
+import numpy as np
+from PIL import Image
+from io import BytesIO
 
 from google.cloud import  storage
 
@@ -519,4 +525,49 @@ profile.update(
 # Save the color image as a GeoTIFF
 # with rasterio.open(output_path, 'w', **profile) as dst:
     # dst.write(rgb_image)
+
+# WRS-2 Path and Row Calculation
+
+def latlong_to_wrs2(latitude, longitude):
+    EARTH_RADIUS = 6378.137  # km
+    WRS_PATH_WIDTH = 185  # km, approximate width of a WRS-2 path
+    TOTAL_PATHS = 233  # Total number of paths globally
+    TOTAL_ROWS = 248  # Total number of rows globally
+
+    # Convert latitude and longitude to radians
+    lat_radians = math.radians(latitude)
+    lon_radians = math.radians(longitude)
+
+    # Calculate WRS-2 Path (simplified estimate, will need fine-tuning)
+    path = int((longitude + 180) / (360 / TOTAL_PATHS)) + 1
+
+    # Calculate WRS-2 Row (simplified estimate based on latitude)
+    row = int((latitude + 90) / (180 / TOTAL_ROWS)) + 1
+
+    return path, row
+
+#Plotting the Pixel on the Map
+
+def plot_pixel_on_map_with_thumbnail(latitude, longitude, image_url):
+    response = requests.get(image_url)  # Fetch the image from thumbnail URL
+    if response.status_code == 200:
+        img = Image.open(BytesIO(response.content))  # Open the image in PIL
+
+        # Display the fetched Landsat image as the background
+        plt.imshow(np.asarray(img), extent=[-180, 180, -90, 90])  # World map extent for the image
+
+        # Plot the pixel (latitude/longitude) on the map
+        plt.scatter(longitude, latitude, c='r', marker='x')  # Drop the red X at the target location
+        plt.title("Target Pixel on Map with Landsat Thumbnail")
+        plt.xlabel("Longitude")
+        plt.ylabel("Latitude")
+
+        plt.show()
+    else:
+        print(f"Failed to fetch image, status code: {response.status_code}")
+
+latitude = 55.93607  # Set your latitude
+longitude = -3.20483  # Set your longitude
+thumbnail_url = 'https://landsatlook.usgs.gov/gen-browse?size=thumb&type=refl&product_id=LC08_L1TP_014001_20240903_20240906_02_T1'  # Replace with your own image URL
+plot_pixel_on_map_with_thumbnail(latitude, longitude, thumbnail_url)
 

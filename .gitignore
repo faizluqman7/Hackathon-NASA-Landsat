@@ -2,3 +2,4 @@ node_modules/
 *.env
 launch.json
 gleaming-lead-437206-i7-827426fd2864.json
+venv

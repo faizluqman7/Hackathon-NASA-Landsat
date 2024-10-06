@@ -12,6 +12,13 @@
             padding: 10px 0; /* Add top padding */
             margin-top: 10px; /* Add some margin from the bottom */
         }
+
+        /* Style for the link */
+        .blue-link {
+            color: blue;
+            text-decoration: underline;
+            font-weight: bold; /* Make the text bold */
+        }
     </style>
 </head>
 <body>
@@ -40,49 +47,69 @@
       <div class="window" role="tabpanel">
         <div class="window-body">
             <ul class="tree-view" style="margin-bottom: 10px; font-size: large;">
-                <li>Table of Contents</li>
-                <li>What is Landsat?</li>
+                <li style="font-weight: bold;">Table of Contents</li>
                 <li>
-                  Landsat 8/9
+                  <strong>What is Landsat Observer?</strong>
                   <ul>
-                    <li>Selectors</li>
-                    <li>Specificity</li>
-                    <li>Properties</li>
+                    <details open>
+                    <summary>Background</summary>
+                      <ul>
+                        <li>Landsat Observer was created to provide easy access to satellite data for researchers and hobbyists interested in Earth observation.</li>
+                    </ul>
+                    </details>
+                    <details open>
+                    <summary>Tech Stack</summary>
+                    <ul>
+                      <li>The application is built using:</li>
+                      <ul>
+                        <li>CSS/HTML/JS</li>
+                        <ul>
+                          <li><a href="https://jdan.github.io/98.css/" class="blue-link">98.css library by jdan</a></li>
+                      </ul>
+                    </ul>
+                    <ul>
+                      <li>Python</li>
+                      <ul>
+                        <li><a href="https://json5.org/" class="blue-link">json5</a></li>
+                        <li><a href="https://rasterio.readthedocs.io/en/stable/" class="blue-link">rasterio</a></li>
+                        <li><a href="https://github.com/theskumar/python-dotenv?tab=readme-ov-file" class="blue-link">python-dotenv</a></li>
+                    </ul>
+                    <li>Landsat Data </li>
+                    <ul>
+                      <li><a href="https://m2m.cr.usgs.gov/" class="blue-link">Machine-to-Machine (M2M) API by USGS</a></li>
+                  </ul>
+                    <ul>
+                      <li><a href="https://landsat.gsfc.nasa.gov/data/" class="blue-link">Landsat Data provided by NASA</a></li>
+                  </ul>
+                    </ul>
+                  </ul>
+                  </details>
                   </ul>
                 </li>
                 <li>
-                  <details open>
-                    <summary>Landsat Observer</summary>
+                  <strong>The Team</strong>
+                  <ul>
+                    <details open>
+                    <summary>Who We Are</summary>
                     <ul>
-                      <li>Avoid at all costs</li>
-                      <li>
-                        <details>
-                          <summary>Unless</summary>
-                          <ul>
-                            <li>Avoid</li>
-                            <li>
-                              <details>
-                                <summary>At</summary>
-                                <ul>
-                                  <li>Avoid</li>
-                                  <li>At</li>
-                                  <li>All</li>
-                                  <li>Cost</li>
-                                </ul>
-                              </details>
-                            </li>
-                            <li>All</li>
-                            <li>Cost</li>
-                          </ul>
-                        </details>
-                      </li>
-                    </ul>
+                      <li>We are an international team of third-year Computer Science students from the University of Edinburgh.</li>
+                  </ul>
                   </details>
+                    <details open>
+                    <summary>Contact Us</summary>
+                    <ul>
+                      <li>Please check out our GitHub profiles:</li>
+                      <ul>
+                        <li><a href="https://github.com/s2426770" class="blue-link">Tasneem</a></li>
+                        <li><a href="https://github.com/faizluqman7" class="blue-link">Faiz</a></li>
+                        <li><a href="https://github.com/CarrotsandCoding" class="blue-link">Kashvi</a></li>
+                        <li><a href="https://github.com/AXMonarch" class="blue-link">Arindam</a></li>
+                        <li><a href="https://github.com/cactusdrink" class="blue-link">Mabel</a></li>
+                    </ul>
+                  </ul>
+                  </details>
+                  </ul>
                 </li>
-                <li>???</li>
-                <li>Special Thanks</li>
-              </ul>
-          <button style="font-size: large;">Get started</button>
         </div>
       </div>
     </div>
@@ -95,7 +122,6 @@
     <p id="date-time"></p>
   </div>
 </div>
-
 
   <script>
     function updateDateTime() {
