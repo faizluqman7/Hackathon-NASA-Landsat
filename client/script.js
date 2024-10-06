@@ -288,7 +288,7 @@ function handleLocationError(browserHasGeolocation, pos) {
 		const lng = document.getElementById('lng').value;
 
 		// Send data to backend for sending the email
-		fetch('http://localhost:3000/send-email', {
+		fetch('https://hackathon-nasa-landsat.onrender.com/send-email', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
