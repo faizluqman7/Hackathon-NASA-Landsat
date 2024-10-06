@@ -12,10 +12,22 @@
             padding: 10px 0; /* Add top padding */
             margin-top: 10px; /* Add some margin from the bottom */
         }
+        /* Additional styles for sections */
+        .hero {
+            text-align: center;
+            padding: 20px;
+            background-color: #f0f0f0; /* Light background color */
+        }
+        .updates, .cta {
+            margin: 15px 0;
+        }
+        h2 {
+            margin-top: 0; /* Remove top margin for headings */
+        }
     </style>
 </head>
 <body>
-  <div class="window" style="width: 1206px; height: 700px;">
+  <div class="window" style="width: 1206px; height: auto;">
     <div class="title-bar" style="width: 1200px; height: 35px;">
       <div class="title-bar-text" style="font-size: large;">Welcome to Landsat Observer</div>
       <div class="title-bar-controls">
@@ -31,29 +43,38 @@
       </div>
     </div>
     <div class="window-body" style="width: 1190px;">
-      <menu role="tablist">
-        <li role="tab" aria-selected="true" style="font-size: large;"><a href="index.html">Home</a></li>
-        <li role="tab" style="font-size: large;"><a href="location.html">Location Selector</a></li>
-        <li role="tab" style="font-size: large;"><a href="notification.html">Notification Settings</a></li>
-        <li role="tab" style="font-size: large;"><a href="about.html">About</a></li>
-      </menu>
-      <div class="window" role="tabpanel">
-        <div class="window-body">
-          <p style="font-size: large;">Click on Get started to begin searching for Landsat data.</p>
-          <button style="font-size: large;">Get started</button>
-        </div>
+      <div class="hero">
+        <h1>Your Gateway to Satellite Data</h1>
+        <p>Explore the Earth with Landsat Observer.</p>
       </div>
+      <section class="updates">
+        <h2>Updates</h2>
+        <ul>
+          <li>Version 1.0 - Initial release with basic features.</li>
+          <li>Version 1.1 - Added location selector for better data filtering.</li>
+          <li>Version 1.2 - Improved user interface and accessibility features.</li>
+          <li>Version 1.3 - Notification settings now available for user alerts.</li>
+        </ul>
+      </section>
+      <section class="cta">
+        <h2>Ready to explore?</h2>
+        <div class="window" role="tabpanel">
+          <div class="window-body">
+            <p style="font-size: large;">Click on <strong>Get started</strong> to begin searching for Landsat data.</p>
+            <button onclick="location.href='location.html'"; style="font-size: large;">Get started</button>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 
-<!-- Footer Window -->
-<div class="window" id="footer-window" style="display: flex; justify-content: space-between; align-items: center; height: 30px;">
-  <div class="window-body" style="font-size: large; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px;">
-    <p>© 2024 Landsat Observer. All rights reserved.</p>
-    <p id="date-time"></p>
+  <!-- Footer Window -->
+  <div class="window" id="footer-window" style="display: flex; justify-content: space-between; align-items: center; height: 30px;">
+    <div class="window-body" style="font-size: large; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px;">
+      <p>© 2024 Landsat Observer. All rights reserved.</p>
+      <p id="date-time"></p>
+    </div>
   </div>
-</div>
-
 
   <script>
     function updateDateTime() {

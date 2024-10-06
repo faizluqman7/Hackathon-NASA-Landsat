@@ -3,32 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 Not Found</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+    <title>404 Page Not Found</title>
+    <link rel="stylesheet" href="https://unpkg.com/98.css">
+    <link rel="stylesheet" href="style.css"> 
+    <style>
+        /* Adding space between fieldset and button */
+        fieldset {
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <h1>Oops!</h1>
-        </header>
-        
-        <main class="main-content">
-            <div class="error-message">
-                <h2>404 - Page Not Found</h2>
-                <p>Sorry, the page you are looking for does not exist.</p>
-            </div>
+    <div class="window" style="width: 300px">
+        <div class="title-bar">
+          <div class="title-bar-text">Error 404: Page Not Found :-(</div>
+          <div class="title-bar-controls">
+            <button aria-label="Minimize"></button>
+            <button aria-label="Maximize"></button>
+            <button aria-label="Close"></button>
+          </div>
+        </div>
+        <div class="window-body">
+            <p>Sorry, the page you are looking for does not exist.</p>
+            <fieldset>
+                <div class="field-row">You can still visit one of the options below:</div>
+                <div class="field-row">
+                  <input id="radio-home" type="radio" name="page-option" value="index.html">
+                  <label for="radio-home">Home</label>
+                </div>
+                <div class="field-row">
+                  <input id="radio-notifications" type="radio" name="page-option" value="notification.html">
+                  <label for="radio-notifications">Notification Settings</label>
+                </div>
+                <div class="field-row">
+                  <input id="radio-about" type="radio" name="page-option" value="about.html">
+                  <label for="radio-about">About</label>
+                </div>
+            </fieldset>
+            <button id="go-button">OK</button>
+        </div>
+      </div>
 
-            <div class="navigation">
-                <h3>What would you like to do?</h3>
-                <a href="index.html" class="btn">Go to Home</a>
-                <a href="location.html" class="btn">Set a New Location</a>
-                <a href="notification.html" class="btn">Notification Settings</a>
-            </div>
-        </main>
+      <!-- Footer Window -->
+      <div class="window" id="footer-window" style="display: flex; justify-content: space-between; align-items: center; height: 30px;">
+        <div class="window-body" style="font-size: large; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px;">
+            <p>© 2024 Landsat Observer. All rights reserved.</p>
+            <p id="date-time"></p>
+        </div>
+      </div>
 
-        <footer class="footer">
-            <p>&copy; 2024 Landsat Observer. All rights reserved.</p>
-        </footer>
-    </div>
+    <!-- JavaScript to handle redirection -->
+    <script>
+        document.getElementById('go-button').addEventListener('click', function() {
+            // Get the selected radio button
+            const selectedOption = document.querySelector('input[name="page-option"]:checked');
+            if (selectedOption) {
+                // Redirect to the selected page
+                window.location.href = selectedOption.value;
+            } else {
+                alert('Please select a page to visit.');
+            }
+        });
+
+        // Display current date and time in the footer
+        function updateDateTime() {
+            const now = new Date();
+            const dateTimeStr = now.toLocaleString();
+            document.getElementById('date-time').innerText = dateTimeStr;
+        }
+        setInterval(updateDateTime, 1000); // Update every second
+    </script>
 </body>
 </html>
