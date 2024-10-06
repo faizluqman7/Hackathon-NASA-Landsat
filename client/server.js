@@ -7,6 +7,8 @@ const bodyParser = require('body-parser');
 const sgMail = require('@sendgrid/mail');
 const cors = require('cors'); // Import the CORS middleware
 
+//const { Storage } = require('@google-cloud/storage');
+
 // Initialize the app
 const app = express();
 
@@ -17,6 +19,29 @@ app.use(bodyParser.json()); // To handle JSON requests
 
 // Set your SendGrid API key
 sgMail.setApiKey('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'); // Replace with your actual API key
+
+//---------GET THE URLS FROM THE CLOUD------
+
+/*
+// Google Cloud Storage setup
+const storage = new Storage();
+const bucketName = 'your-bucket-name';
+const fileName = 'download_urls.json';
+
+// Function to retrieve URLs from Google Cloud Storage
+async function getDownloadUrlsFromGCloud() {
+    const bucket = storage.bucket(bucketName);
+    const file = bucket.file(fileName);
+
+    // Read the file content
+    const data = await file.download();
+    const urls = JSON.parse(data);
+
+    return urls.download_urls;
+}
+*/
+
+//----------GET THE URLS FROM THE CLOUD
 
 // Endpoint to send email
 app.post('/send-email', (req, res) => {
