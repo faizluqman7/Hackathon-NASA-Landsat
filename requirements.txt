@@ -4,5 +4,4 @@ python-dotenv
 matplotlib
 numpy
 pillow
-google-cloud
-rasterio
+google-cloud-storage
