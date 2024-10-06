@@ -17,7 +17,7 @@ import time
 
 from google.cloud import storage
 
-import rasterio  
+#import rasterio  
 import numpy as np  
 
 # install python packages:
