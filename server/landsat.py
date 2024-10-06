@@ -297,7 +297,7 @@ print("========\n")
 import time  
 
  
-def retrieve_dwn_urls(api_key, datasetName, entityIds, dwdApp="M2M"):
+def retrieve_dwn_urls(api_key, entityIds, datasetName="landsat_ot_c2_l2", dwdApp="M2M"):
 # Define the API endpoints  
     download_options_url = "https://m2m.cr.usgs.gov/api/api/json/stable/download-options"  # Replace with the actual URL  
     download_request_url = "https://m2m.cr.usgs.gov/api/api/json/stable/download-request"    # Replace with the actual URL  
@@ -379,7 +379,7 @@ def retrieve_dwn_urls(api_key, datasetName, entityIds, dwdApp="M2M"):
 # ========== DOWNLOADING LANDSAT EDIN SCENES ============
 # input params for downloading
 entity_ids = "LC92050212024249LGN00,LC92040212024258LGN00,LC82050212024257LGN00,LC82040212024250LGN00"
-dwd_urls_list = retrieve_dwn_urls(m2m_api_key, dataset_name, entity_ids)
+dwd_urls_list = retrieve_dwn_urls(m2m_api_key, entity_ids, dataset_name )
 print("--> Available download urls: ")
 print(dwd_urls_list)
         
