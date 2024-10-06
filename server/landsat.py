@@ -15,10 +15,9 @@ from PIL import Image
 from io import BytesIO
 import time  
 
-from google.cloud import  storage
+from google.cloud import storage
 
-# import rasterio  
-
+import rasterio  
 import numpy as np  
 
 # install python packages:
