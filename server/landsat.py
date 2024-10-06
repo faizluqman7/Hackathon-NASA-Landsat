@@ -321,7 +321,6 @@ def store_urls_in_gcs(bucket_name, file_name, urls):
     print(f"Stored {len(urls)} URLs in {file_name} in bucket {bucket_name} as JSON.") 
 
 
-
 def generate_signed_url(bucket_name, object_name, expiration= dt.timedelta(hours=1)):  
     """Generates a signed URL for accessing a GCS object."""  
     storage_client = storage.Client()  
@@ -340,7 +339,7 @@ import time
 
 def retrieve_dwn_urls(api_key, entityIds, bucket_name, datasetName="landsat_ot_c2_l2", dwdApp="M2M", filename="download_urls.json"):
 # Define the API endpoints  
-    download_options_url = "https://m2m.cr.usgs.gov/api/api/json/stable/download-options"  # Replace with the actual URL  
+    download_options_url = "https://m2m.cr.usgs.gov/api/api/json/stable/download-options"  # Replace with the actual URL   
     download_request_url = "https://m2m.cr.usgs.gov/api/api/json/stable/download-request"    # Replace with the actual URL  
     download_retrieve_url = "https://m2m.cr.usgs.gov/api/api/json/stable/download-retrieve"  # Replace with the actual URL  
 
@@ -436,7 +435,7 @@ dwd_urls_list = retrieve_dwn_urls(m2m_api_key, entity_ids, bucket_name, dataset_
 print("--> Available download urls: ")
 print(dwd_urls_list)
 
-print(f"SIGNED URL: {generate_signed_url(bucket_name,"download_urls.json")}")
+# print(f"SIGNED URL: {generate_signed_url(bucket_name,"download_urls.json")}")
         
 # from urllib.parse import urlparse
 
