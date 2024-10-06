@@ -43,6 +43,22 @@ async function getDownloadUrlsFromGCloud() {
 
 //----------GET THE URLS FROM THE CLOUD
 
+function runPythonScript() {
+    exec('python3 server/landsat.py', (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error executing Python script: ${error}`);
+            return;
+        }
+        console.log(`Python Script Output: ${stdout}`);
+        if (stderr) {
+            console.error(`Python Script Error Output: ${stderr}`);
+        }
+    });
+}
+
+// Run Python script when the server starts
+runPythonScript();
+
 // Endpoint to send email
 app.post('/send-email', (req, res) => {
     const { email, lat, lng } = req.body;
