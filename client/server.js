@@ -83,18 +83,6 @@ app.post('/send-email', async (req, res) => {
         res.status(500).send('Error sending email');
     }
 });
-
-    // Send the email
-    sgMail
-        .send(msg)
-        .then(() => {
-            res.status(200).send('Email sent successfully');
-        })
-        .catch((error) => {
-            console.error(error);
-            res.status(500).send('Error sending email');
-        });
-});
 // DELETE IF NOT WORKING
 // Endpoint to handle satellite data retrieval request
 app.post('/retrieve-satellite-data', (req, res) => {
