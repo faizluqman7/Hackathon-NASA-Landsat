@@ -105,6 +105,18 @@ def search_datasets(api_key, temporal_filter, spatial_filter):
         raise e  
     
 
+
+
+def write_pretty_print_to_file(dict, filename,directory):  
+    # Ensure the directory exists  
+    os.makedirs(directory, exist_ok=True)  
+    
+    # Create the full file path  
+    file_path = os.path.join(directory, filename)  
+    with open(file_path, 'w') as file:  
+        pp = pprint.PrettyPrinter(indent=4, stream=file)  
+        pp.pprint(dict)  
+    print(f"Output has been written to {filename}")  
 # ===================================
 # GET_M2M_API_KEY() EXAMPLE USE
 # Source: siderAI  
@@ -170,7 +182,7 @@ print(list_of_dates[0] + " is the most recent date LandSAT data was captured in 
 print(dt.datetime.strptime(list_of_dates[0], '%Y-%m-%d %H:%M:%S') + dt.timedelta(days=16), "is the closest future date that Landsat hovers over a location!\n")
 
 
-# function that returns the closest future date that Landsat hovers over the given location
+
 
 print("\n========\n")
 print("Testing dataset-search:")
@@ -213,17 +225,6 @@ def get_dataset_alias(api_key, longitude, latitude, start_date=None, end_date=No
 # # Print the dataset alias for confirmation
 # print(f"Dataset Alias: {dataset_alias}")
 
-
-def write_pretty_print_to_file(dict, filename,directory):  
-    # Ensure the directory exists  
-    os.makedirs(directory, exist_ok=True)  
-    
-    # Create the full file path  
-    file_path = os.path.join(directory, filename)  
-    with open(file_path, 'w') as file:  
-        pp = pprint.PrettyPrinter(indent=4, stream=file)  
-        pp.pprint(dict)  
-    print(f"Output has been written to {filename}")  
 
 # Example usage  
 filename = "output.txt"  
@@ -276,6 +277,7 @@ end_date = "2024-09-16"
 
 
 # setting up GCS key
+# import datetime import timedelta
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gleaming-lead-437206-i7-827426fd2864.json"
 
 
@@ -297,7 +299,37 @@ def upload_to_gcs(bucket_name, source_file_name, destination_blob_name, retries=
             print(f"Attempt {attempt + 1} failed: {e}")  
             time.sleep(2)  # Wait 2 secsbefore retrying  
 
-    raise Exception("GCS FAILED to upload after multiple attempts.")  
+    raise Exception("GCS FAILED to upload after multiple attempts.") 
+
+
+def store_urls_in_gcs(bucket_name, file_name, urls):  
+    """Stores the list of URLs in a text file in Google Cloud Storage."""  
+    # Initialize a GCS client  
+    storage_client = storage.Client()  
+    bucket = storage_client.bucket(bucket_name)  
+
+    # Create a new blob (file) in the bucket  
+    blob = bucket.blob(file_name)  
+    # blob.make_public()
+
+    # Convert the list of URLs to a JSON formatted string  
+    json_data = json.dumps(urls)  
+    print(f"URL JSON: {json_data}")
+
+    # Write the JSON data to the blob  
+    blob.upload_from_string(json_data, content_type='application/json')  
+    print(f"Stored {len(urls)} URLs in {file_name} in bucket {bucket_name} as JSON.") 
+
+
+
+def generate_signed_url(bucket_name, object_name, expiration= dt.timedelta(hours=1)):  
+    """Generates a signed URL for accessing a GCS object."""  
+    storage_client = storage.Client()  
+    bucket = storage_client.bucket(bucket_name)  
+    blob = bucket.blob(object_name)  
+
+    signed_url = blob.generate_signed_url(expiration=expiration)  
+    return signed_url  
 
 
 print("\n========")
@@ -305,8 +337,8 @@ print("Testing gpto1's 'download' code:")
 print("========\n")
 import time  
 
- 
-def retrieve_dwn_urls(api_key, entityIds, datasetName="landsat_ot_c2_l2", dwdApp="M2M"):
+
+def retrieve_dwn_urls(api_key, entityIds, bucket_name, datasetName="landsat_ot_c2_l2", dwdApp="M2M", filename="download_urls.json"):
 # Define the API endpoints  
     download_options_url = "https://m2m.cr.usgs.gov/api/api/json/stable/download-options"  # Replace with the actual URL  
     download_request_url = "https://m2m.cr.usgs.gov/api/api/json/stable/download-request"    # Replace with the actual URL  
@@ -381,16 +413,30 @@ def retrieve_dwn_urls(api_key, entityIds, datasetName="landsat_ot_c2_l2", dwdApp
             download_url_list.append(download["url"])  
     else:  
         print("No available downloads.")
-    return download_url_list
+        
+    
+    # sotre URLs in Google Cloud Storage
+    if download_url_list:  
+        store_urls_in_gcs(bucket_name, filename, download_url_list)  
+
+    return download_url_list  
+    
     
         
+# Setting Bucket to be Public
+bucket_name = "my_baldi"
+# set_bucket_public_iam(bucket_name)
+# https://storage.googleapis.com/my_baldi/download_urls.json
+
         
 # ========== DOWNLOADING LANDSAT EDIN SCENES ============
 # input params for downloading
 entity_ids = "LC92050212024249LGN00,LC92040212024258LGN00,LC82050212024257LGN00,LC82040212024250LGN00"
-dwd_urls_list = retrieve_dwn_urls(m2m_api_key, entity_ids, dataset_name )
+dwd_urls_list = retrieve_dwn_urls(m2m_api_key, entity_ids, bucket_name, dataset_name )
 print("--> Available download urls: ")
 print(dwd_urls_list)
+
+print(f"SIGNED URL: {generate_signed_url(bucket_name,"download_urls.json")}")
         
 # from urllib.parse import urlparse
 
@@ -477,97 +523,97 @@ print("\n*** DONE UNZIPPING LANDSAT FILES ***\n")
 
 # File paths for the TIF images  
 
-print(f"RASTERIO VER: {rasterio.__version__}")
+# print(f"RASTERIO VER: {rasterio.__version__}")
 
-band_2_path = "path/to/band2.TIF"  # Replace with the actual path to Band 2  
-band_3_path = "path/to/band3.TIF"  # Replace with the actual path to Band 3  
-band_4_path = "path/to/band4.TIF"  # Replace with the actual path to Band 4  
+# band_2_path = "path/to/band2.TIF"  # Replace with the actual path to Band 2  
+# band_3_path = "path/to/band3.TIF"  # Replace with the actual path to Band 3  
+# band_4_path = "path/to/band4.TIF"  # Replace with the actual path to Band 4  
 
-# Read the TIF files  
-with rasterio.open(band_2_path) as band2:  
-    band2_data = band2.read(1)  # Read the first band (Band 2)  
-    profile = band2.profile
+# # Read the TIF files  
+# with rasterio.open(band_2_path) as band2:  
+#     band2_data = band2.read(1)  # Read the first band (Band 2)  
+#     profile = band2.profile
 
-with rasterio.open(band_3_path) as band3:  
-    band3_data = band3.read(1)  # Read the first band (Band 3)  
+# with rasterio.open(band_3_path) as band3:  
+#     band3_data = band3.read(1)  # Read the first band (Band 3)  
 
-with rasterio.open(band_4_path) as band4:  
-    band4_data = band4.read(1)  # Read the first band (Band 4)  
+# with rasterio.open(band_4_path) as band4:  
+#     band4_data = band4.read(1)  # Read the first band (Band 4)  
 
-# Function to perform contrast stretching  
-def contrast_stretch(band_data):  
-    # Get the minimum and maximum values  
-    min_val = np.min(band_data)  
-    max_val = np.max(band_data)  
+# # Function to perform contrast stretching  
+# def contrast_stretch(band_data):  
+#     # Get the minimum and maximum values  
+#     min_val = np.min(band_data)  
+#     max_val = np.max(band_data)  
     
-    # Perform contrast stretching  
-    stretched = (band_data - min_val) / (max_val - min_val) * 255  
-    return stretched.astype(np.uint8)  
+#     # Perform contrast stretching  
+#     stretched = (band_data - min_val) / (max_val - min_val) * 255  
+#     return stretched.astype(np.uint8)  
 
-# Apply contrast stretching to each band  
-band2_stretched = contrast_stretch(band2_data)  
-band3_stretched = contrast_stretch(band3_data)  
-band4_stretched = contrast_stretch(band4_data)  
+# # Apply contrast stretching to each band  
+# band2_stretched = contrast_stretch(band2_data)  
+# band3_stretched = contrast_stretch(band3_data)  
+# band4_stretched = contrast_stretch(band4_data)  
 
-# Stack the bands into a 3D array (RGB)  
-rgb_image = np.stack((band4_stretched, band3_stretched, band2_stretched), axis=0)  # Band 4 (Red), Band 3 (Green), Band 2 (Blue)  
+# # Stack the bands into a 3D array (RGB)  
+# rgb_image = np.stack((band4_stretched, band3_stretched, band2_stretched), axis=0)  # Band 4 (Red), Band 3 (Green), Band 2 (Blue)  
 
 # Optionally, save the color image  
 output_path = 'server/rgb_stack_L08_20240914_contrast_stretched.tif'  # Replace with desired output path 
 
-# Update the profile for a 3-band GeoTIFF
-profile.update(
-    dtype=rasterio.uint8,
-    count=3,
-    compress='lzw'
-)
+# # Update the profile for a 3-band GeoTIFF
+# profile.update(
+#     dtype=rasterio.uint8,
+#     count=3,
+#     compress='lzw'
+# )
 
-# Save the color image as a GeoTIFF
-with rasterio.open(output_path, 'w', **profile) as dst:
-    dst.write(rgb_image)
+# # Save the color image as a GeoTIFF
+# # with rasterio.open(output_path, 'w', **profile) as dst:
+#     # dst.write(rgb_image)
 
-# WRS-2 Path and Row Calculation
+# # WRS-2 Path and Row Calculation
 
-def latlong_to_wrs2(latitude, longitude):
-    EARTH_RADIUS = 6378.137  # km
-    WRS_PATH_WIDTH = 185  # km, approximate width of a WRS-2 path
-    TOTAL_PATHS = 233  # Total number of paths globally
-    TOTAL_ROWS = 248  # Total number of rows globally
+# def latlong_to_wrs2(latitude, longitude):
+#     EARTH_RADIUS = 6378.137  # km
+#     WRS_PATH_WIDTH = 185  # km, approximate width of a WRS-2 path
+#     TOTAL_PATHS = 233  # Total number of paths globally
+#     TOTAL_ROWS = 248  # Total number of rows globally
 
-    # Convert latitude and longitude to radians
-    lat_radians = math.radians(latitude)
-    lon_radians = math.radians(longitude)
+#     # Convert latitude and longitude to radians
+#     lat_radians = math.radians(latitude)
+#     lon_radians = math.radians(longitude)
 
-    # Calculate WRS-2 Path (simplified estimate, will need fine-tuning)
-    path = int((longitude + 180) / (360 / TOTAL_PATHS)) + 1
+#     # Calculate WRS-2 Path (simplified estimate, will need fine-tuning)
+#     path = int((longitude + 180) / (360 / TOTAL_PATHS)) + 1
 
-    # Calculate WRS-2 Row (simplified estimate based on latitude)
-    row = int((latitude + 90) / (180 / TOTAL_ROWS)) + 1
+#     # Calculate WRS-2 Row (simplified estimate based on latitude)
+#     row = int((latitude + 90) / (180 / TOTAL_ROWS)) + 1
 
-    return path, row
+#     return path, row
 
-#Plotting the Pixel on the Map
+# #Plotting the Pixel on the Map
 
-def plot_pixel_on_map_with_thumbnail(latitude, longitude, image_url):
-    response = requests.get(image_url)  # Fetch the image from thumbnail URL
-    if response.status_code == 200:
-        img = Image.open(BytesIO(response.content))  # Open the image in PIL
+# def plot_pixel_on_map_with_thumbnail(latitude, longitude, image_url):
+#     response = requests.get(image_url)  # Fetch the image from thumbnail URL
+#     if response.status_code == 200:
+#         img = Image.open(BytesIO(response.content))  # Open the image in PIL
 
-        # Display the fetched Landsat image as the background
-        plt.imshow(np.asarray(img), extent=[-180, 180, -90, 90])  # World map extent for the image
+#         # Display the fetched Landsat image as the background
+#         plt.imshow(np.asarray(img), extent=[-180, 180, -90, 90])  # World map extent for the image
 
-        # Plot the pixel (latitude/longitude) on the map
-        plt.scatter(longitude, latitude, c='r', marker='x')  # Drop the red X at the target location
-        plt.title("Target Pixel on Map with Landsat Thumbnail")
-        plt.xlabel("Longitude")
-        plt.ylabel("Latitude")
+#         # Plot the pixel (latitude/longitude) on the map
+#         plt.scatter(longitude, latitude, c='r', marker='x')  # Drop the red X at the target location
+#         plt.title("Target Pixel on Map with Landsat Thumbnail")
+#         plt.xlabel("Longitude")
+#         plt.ylabel("Latitude")
 
-        plt.show()
-    else:
-        print(f"Failed to fetch image, status code: {response.status_code}")
+#         plt.show()
+#     else:
+#         print(f"Failed to fetch image, status code: {response.status_code}")
 
-latitude = 55.93607  # Set your latitude
-longitude = -3.20483  # Set your longitude
-thumbnail_url = 'https://landsatlook.usgs.gov/gen-browse?size=thumb&type=refl&product_id=LC08_L1TP_014001_20240903_20240906_02_T1'  # Replace with your own image URL
-plot_pixel_on_map_with_thumbnail(latitude, longitude, thumbnail_url)
+# latitude = 55.93607  # Set your latitude
+# longitude = -3.20483  # Set your longitude
+# thumbnail_url = 'https://landsatlook.usgs.gov/gen-browse?size=thumb&type=refl&product_id=LC08_L1TP_014001_20240903_20240906_02_T1'  # Replace with your own image URL
+# plot_pixel_on_map_with_thumbnail(latitude, longitude, thumbnail_url)
 
