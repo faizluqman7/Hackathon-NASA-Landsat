@@ -13,10 +13,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 from io import BytesIO
+import time  
 
 from google.cloud import  storage
 
-import rasterio  
+# import rasterio  
+
 import numpy as np  
 
 # install python packages:
@@ -181,7 +183,35 @@ for x in range(0, len(dataset_dict['results'])):
 print(list_of_dates[0] + " is the most recent date LandSAT data was captured in Edinburgh.\n")
 print(dt.datetime.strptime(list_of_dates[0], '%Y-%m-%d %H:%M:%S') + dt.timedelta(days=16), "is the closest future date that Landsat hovers over a location!\n")
 
+def backup_landsat_function(lat, lng, m2m_api_key, dataset_name, date_range):
+    # Define the spatial filter for Edinburgh location based on user input
+    edin_location = {
+        "filterType": "mbr",    
+        "lowerLeft": {"latitude": lat - 0.05, "longitude": lng - 0.05},
+        "upperRight": {"latitude": lat + 0.05, "longitude": lng + 0.05}
+    }
 
+    # Call the function to search for scenes, returns a dictionary  
+    dataset_dict = search_landsat_scenes(m2m_api_key, dataset_name, date_range, spatial_filter=edin_location)
+
+    list_of_dates = []
+    
+    # Extract dates from the dataset_dict
+    for x in range(0, len(dataset_dict['results'])):
+        list_of_dates.append(dataset_dict['results'][x]['temporalCoverage']['endDate'])
+
+    # Print the most recent and the closest future date Landsat hovers over the location
+    #print(list_of_dates[0] + " is the most recent date LandSAT data was captured in Edinburgh.\n")
+    future_date = dt.datetime.strptime(list_of_dates[0], '%Y-%m-%d %H:%M:%S') + dt.timedelta(days=16)
+    #print(future_date)
+    return future_date
+
+# Example call to the function
+lat = float(input("Enter latitude: "))  
+lng = float(input("Enter longitude: "))  
+future_date = backup_landsat_function(lat, lng, m2m_api_key, dataset_name, date_range)
+
+print(f"DATE FUTURE :{future_date}")
 
 
 print("\n========\n")
@@ -334,7 +364,6 @@ def generate_signed_url(bucket_name, object_name, expiration= dt.timedelta(hours
 print("\n========")
 print("Testing gpto1's 'download' code:")
 print("========\n")
-import time  
 
 
 def retrieve_dwn_urls(api_key, entityIds, bucket_name, datasetName="landsat_ot_c2_l2", dwdApp="M2M", filename="download_urls.json"):
