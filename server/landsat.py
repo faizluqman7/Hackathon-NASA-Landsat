@@ -201,6 +201,34 @@ write_pretty_print_to_file(dataset_dict, filename, directory)
 # - - - URLs returned as "available" are available for download
 # - - - For URLs returned as "preparing," wait and check download-retrieve to see if they are "available"
 
+import os
+from google.cloud import  storage
+
+# setting up GCS key
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gleaming-lead-437206-i7-827426fd2864.json"
+
+
+# GCS = Google Cloud Storage
+def upload_to_gcs(bucket_name, source_file_name, destination_blob_name, retries=3):  
+    """Uploads a file to the bucket."""  
+    storage_client = storage.Client()  
+    bucket = storage_client.bucket(bucket_name)  
+    blob = bucket.blob(destination_blob_name)  
+
+    # blob.upload_from_filename(source_file_name)  
+    
+    for attempt in range(retries):  
+        try:  
+            blob.upload_from_filename(source_file_name, timeout=60)  # Set timeout to 60 seconds 
+            print(f"GCS SUCCESS ==> File {source_file_name} uploaded to {destination_blob_name}.")  
+            return  # Exit the function if upload is successful  
+        except Exception as e:  
+            print(f"Attempt {attempt + 1} failed: {e}")  
+            time.sleep(2)  # Wait 2 secsbefore retrying  
+
+    raise Exception("GCS FAILED to upload after multiple attempts.")  
+
+
 print("\n========")
 print("Testing gpto1's 'download' code:")
 print("========\n")
@@ -295,7 +323,7 @@ print(dwd_urls_list)
         
 # from urllib.parse import urlparse
 
-def download_and_extract_zip(url, download_dir):
+def download_and_extract_zip(url, download_dir, bucket_name):
     # Create the download directory if it doesn't exist
     os.makedirs(download_dir, exist_ok=True)
 
@@ -321,15 +349,16 @@ def download_and_extract_zip(url, download_dir):
         if os.path.exists(file_path):  
             print(f"File already exists: {filename}. Skipping download.")  
         else:    
-            # # Save the zip file # !!! UNCOMMENT IF YOU WANT TO DOWNLOAD THE FILES | took around 20 mins to download 4 .tar files
+            # Save the zip file # !!! UNCOMMENT IF YOU WANT TO DOWNLOAD THE FILES | took around 20 mins to download 4 .tar files
             # with open(file_path, 'wb') as file:
                 # for chunk in response.iter_content(chunk_size=8192):
                     # file.write(chunk)
             print(f"Downloaded: {filename}")
         
         # Extract the contents of the tar file  
-        
-        extract_dir = os.path.join(download_dir, os.path.splitext(filename)[0])  
+        folder_name = os.path.splitext(filename)[0]
+        print(f"****FOLDER NAME: {folder_name}")
+        extract_dir = os.path.join(download_dir, folder_name)  
         os.makedirs(extract_dir, exist_ok=True)  
 
         # Extract the contents of the tar file into the new directory  
@@ -338,6 +367,18 @@ def download_and_extract_zip(url, download_dir):
             tar_ref.extractall(extract_dir)  
         print(f"Extracted: {filename} into {extract_dir}")  
         
+        
+        
+        # Upload extracted files to GCS  
+        for root, dirs, files in os.walk(extract_dir):  
+            for file in files:  
+                local_file_path = os.path.join(root, file)  
+                gcs_blob_name = os.path.relpath(local_file_path, extract_dir)  
+                upload_to_gcs(bucket_name, local_file_path, gcs_blob_name)  
+
+
+
+
         # Optionally, remove the tar file after extraction  
         os.remove(file_path)  
         print(f"Removed tar file: {filename}")  
@@ -352,20 +393,24 @@ def download_and_extract_zip(url, download_dir):
 
 # !!! REPLACE THIS PATH WITH YOUR OWN PATHS ON YOUR RESPECTIVE LAPTOPS vv
 download_directory = "download/path"
+bucket_name = "my_baldi"
 
 print("Processing download URLs:")
-for url in dwd_urls_list:
-    print(f"Processing: {url}")
-    download_and_extract_zip(url, download_directory)
+# for url in dwd_urls_list:
+url = dwd_urls_list[0]  # GCS test
+print(f"Processing: {url}")
+download_and_extract_zip(url, download_directory, bucket_name)
 print("\n*** DONE UNZIPPING LANDSAT FILES ***\n")
 
 
+# COLOURING THE LANDSAT IMAGE
 import rasterio  
 import numpy as np  
 import matplotlib.pyplot as plt  
 
 
 # File paths for the TIF images  
+# 
 band_2_path = "path/to/band2.TIF"  # Replace with the actual path to Band 2  
 band_3_path = "path/to/band3.TIF"  # Replace with the actual path to Band 3  
 band_4_path = "path/to/band4.TIF"  # Replace with the actual path to Band 4  
